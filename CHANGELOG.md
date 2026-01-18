@@ -5,13 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.3] - 2026-01-18
+
+### Fixed
+- Added debug logging for connection troubleshooting
+- Added pymodbus version logging for compatibility checking
+- Improved error diagnostics during config flow
+
+### Added
+- Verbose logging output for connection tests
+- Pymodbus version info in logs
+
 ## [1.0.2] - 2026-01-18
 
 ### Fixed
 - Pymodbus v3.x API compatibility (corrected)
 - Slave ID only passed to read/write methods, not client initialization
 - Removed `slave` parameter from AsyncModbusTcpClient constructor
-- Fixes "unexpected keyword argument 'slave'" error
+- Slave ID correctly passed to read/write method calls:
+  - `read_holding_registers()`
+  - `write_register()`
+  - `write_registers()`
+  - `read_registers()`
+
+This fixes `TypeError: AsyncModbusTcpClient.__init__() got an unexpected keyword argument 'slave'` when adding Ever Powerline UPS integration.
 
 ## [1.0.1] - 2026-01-18
 
