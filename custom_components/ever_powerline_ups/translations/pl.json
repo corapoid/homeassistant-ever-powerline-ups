@@ -1,0 +1,214 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Ever Powerline UPS",
+        "description": "Skonfiguruj zasilacz Ever Powerline UPS przez Modbus TCP",
+        "data": {
+          "host": "Adres hosta",
+          "port": "Port"
+        },
+        "data_description": {
+          "host": "Adres IP lub nazwa hosta zasilacza UPS",
+          "port": "Port Modbus TCP (domyslnie: 502)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Nie udalo sie polaczyc z zasilaczem. Sprawdz adres hosta i port."
+    },
+    "abort": {
+      "already_configured": "Ten zasilacz jest juz skonfigurowany"
+    }
+  },
+  "entity": {
+    "sensor": {
+      "temperature": {
+        "name": "Temperatura"
+      },
+      "input_frequency": {
+        "name": "Czestotliwosc wejsciowa"
+      },
+      "input_voltage_l1": {
+        "name": "Napiecie wejsciowe L1"
+      },
+      "input_voltage_l2": {
+        "name": "Napiecie wejsciowe L2"
+      },
+      "input_voltage_l3": {
+        "name": "Napiecie wejsciowe L3"
+      },
+      "output_voltage_l1": {
+        "name": "Napiecie wyjsciowe L1"
+      },
+      "output_voltage_l2": {
+        "name": "Napiecie wyjsciowe L2"
+      },
+      "output_voltage_l3": {
+        "name": "Napiecie wyjsciowe L3"
+      },
+      "output_current_l1": {
+        "name": "Prad wyjsciowy L1"
+      },
+      "output_current_l2": {
+        "name": "Prad wyjsciowy L2"
+      },
+      "output_current_l3": {
+        "name": "Prad wyjsciowy L3"
+      },
+      "active_power_l1": {
+        "name": "Moc czynna L1"
+      },
+      "active_power_l2": {
+        "name": "Moc czynna L2"
+      },
+      "active_power_l3": {
+        "name": "Moc czynna L3"
+      },
+      "active_power_total": {
+        "name": "Moc czynna calkowita"
+      },
+      "apparent_power_l1": {
+        "name": "Moc pozorna L1"
+      },
+      "apparent_power_l2": {
+        "name": "Moc pozorna L2"
+      },
+      "apparent_power_l3": {
+        "name": "Moc pozorna L3"
+      },
+      "apparent_power_total": {
+        "name": "Moc pozorna calkowita"
+      },
+      "load_l1": {
+        "name": "Obciazenie L1"
+      },
+      "load_l2": {
+        "name": "Obciazenie L2"
+      },
+      "load_l3": {
+        "name": "Obciazenie L3"
+      },
+      "load_total": {
+        "name": "Obciazenie"
+      },
+      "battery_charge": {
+        "name": "Poziom naladowania baterii"
+      },
+      "battery_voltage": {
+        "name": "Napiecie baterii"
+      },
+      "battery_voltage_pos": {
+        "name": "Napiecie baterii dodatnie"
+      },
+      "battery_voltage_neg": {
+        "name": "Napiecie baterii ujemne"
+      },
+      "runtime_remaining": {
+        "name": "Pozostaly czas pracy"
+      },
+      "bypass_frequency": {
+        "name": "Czestotliwosc bypass"
+      },
+      "bypass_voltage": {
+        "name": "Napiecie bypass"
+      },
+      "operating_mode": {
+        "name": "Tryb pracy"
+      },
+      "battery_status": {
+        "name": "Stan baterii"
+      },
+      "battery_test_result": {
+        "name": "Wynik testu baterii"
+      },
+      "abm_status": {
+        "name": "Stan ABM"
+      }
+    },
+    "binary_sensor": {
+      "power_fail": {
+        "name": "Brak zasilania"
+      },
+      "low_battery": {
+        "name": "Niski poziom baterii"
+      },
+      "ups_failed": {
+        "name": "Awaria UPS"
+      },
+      "on_battery": {
+        "name": "Praca na baterii"
+      },
+      "test_in_progress": {
+        "name": "Test w trakcie"
+      },
+      "bypass_active": {
+        "name": "Bypass aktywny"
+      },
+      "communication_lost": {
+        "name": "Utracono polaczenie"
+      },
+      "going_shutdown": {
+        "name": "Wylaczanie"
+      },
+      "over_temperature": {
+        "name": "Przegrzanie"
+      },
+      "overload": {
+        "name": "Przeciazenie"
+      },
+      "epo_active": {
+        "name": "EPO aktywne"
+      },
+      "main_neutral_loss": {
+        "name": "Brak przewodu zerowego"
+      },
+      "main_phase_error": {
+        "name": "Blad fazy glownej"
+      },
+      "site_fault": {
+        "name": "Zamienione L i N"
+      },
+      "bypass_abnormal": {
+        "name": "Blad linii bypass"
+      },
+      "bypass_phase_error": {
+        "name": "Blad fazy bypass"
+      },
+      "battery_open": {
+        "name": "Obwod baterii otwarty"
+      },
+      "battery_over_charge": {
+        "name": "Przeladowanie baterii"
+      },
+      "overload_warning": {
+        "name": "Ostrzezenie o przeciazeniu"
+      },
+      "fan_fault": {
+        "name": "Awaria wentylatora"
+      },
+      "maintenance_cover_open": {
+        "name": "Otwarta pokrywa serwisowa"
+      },
+      "charger_fault": {
+        "name": "Awaria ladowarki"
+      }
+    },
+    "button": {
+      "battery_test_start": {
+        "name": "Uruchom test baterii"
+      },
+      "battery_test_cancel": {
+        "name": "Anuluj test baterii"
+      }
+    },
+    "number": {
+      "shutdown_delay": {
+        "name": "Opoznienie wylaczenia"
+      },
+      "startup_delay": {
+        "name": "Opoznienie wlaczenia"
+      }
+    }
+  }
+}

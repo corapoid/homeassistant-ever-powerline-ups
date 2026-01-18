@@ -1,0 +1,214 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Ever Powerline UPS",
+        "description": "Set up your Ever Powerline UPS via Modbus TCP",
+        "data": {
+          "host": "Host",
+          "port": "Port"
+        },
+        "data_description": {
+          "host": "IP address or hostname of the UPS",
+          "port": "Modbus TCP port (default: 502)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to the UPS. Please check the host and port."
+    },
+    "abort": {
+      "already_configured": "This UPS is already configured"
+    }
+  },
+  "entity": {
+    "sensor": {
+      "temperature": {
+        "name": "Temperature"
+      },
+      "input_frequency": {
+        "name": "Input frequency"
+      },
+      "input_voltage_l1": {
+        "name": "Input voltage L1"
+      },
+      "input_voltage_l2": {
+        "name": "Input voltage L2"
+      },
+      "input_voltage_l3": {
+        "name": "Input voltage L3"
+      },
+      "output_voltage_l1": {
+        "name": "Output voltage L1"
+      },
+      "output_voltage_l2": {
+        "name": "Output voltage L2"
+      },
+      "output_voltage_l3": {
+        "name": "Output voltage L3"
+      },
+      "output_current_l1": {
+        "name": "Output current L1"
+      },
+      "output_current_l2": {
+        "name": "Output current L2"
+      },
+      "output_current_l3": {
+        "name": "Output current L3"
+      },
+      "active_power_l1": {
+        "name": "Active power L1"
+      },
+      "active_power_l2": {
+        "name": "Active power L2"
+      },
+      "active_power_l3": {
+        "name": "Active power L3"
+      },
+      "active_power_total": {
+        "name": "Active power total"
+      },
+      "apparent_power_l1": {
+        "name": "Apparent power L1"
+      },
+      "apparent_power_l2": {
+        "name": "Apparent power L2"
+      },
+      "apparent_power_l3": {
+        "name": "Apparent power L3"
+      },
+      "apparent_power_total": {
+        "name": "Apparent power total"
+      },
+      "load_l1": {
+        "name": "Load L1"
+      },
+      "load_l2": {
+        "name": "Load L2"
+      },
+      "load_l3": {
+        "name": "Load L3"
+      },
+      "load_total": {
+        "name": "Load"
+      },
+      "battery_charge": {
+        "name": "Battery charge"
+      },
+      "battery_voltage": {
+        "name": "Battery voltage"
+      },
+      "battery_voltage_pos": {
+        "name": "Battery voltage positive"
+      },
+      "battery_voltage_neg": {
+        "name": "Battery voltage negative"
+      },
+      "runtime_remaining": {
+        "name": "Runtime remaining"
+      },
+      "bypass_frequency": {
+        "name": "Bypass frequency"
+      },
+      "bypass_voltage": {
+        "name": "Bypass voltage"
+      },
+      "operating_mode": {
+        "name": "Operating mode"
+      },
+      "battery_status": {
+        "name": "Battery status"
+      },
+      "battery_test_result": {
+        "name": "Battery test result"
+      },
+      "abm_status": {
+        "name": "ABM status"
+      }
+    },
+    "binary_sensor": {
+      "power_fail": {
+        "name": "Power fail"
+      },
+      "low_battery": {
+        "name": "Low battery"
+      },
+      "ups_failed": {
+        "name": "UPS failed"
+      },
+      "on_battery": {
+        "name": "On battery"
+      },
+      "test_in_progress": {
+        "name": "Test in progress"
+      },
+      "bypass_active": {
+        "name": "Bypass active"
+      },
+      "communication_lost": {
+        "name": "Communication lost"
+      },
+      "going_shutdown": {
+        "name": "Going shutdown"
+      },
+      "over_temperature": {
+        "name": "Over temperature"
+      },
+      "overload": {
+        "name": "Overload"
+      },
+      "epo_active": {
+        "name": "EPO active"
+      },
+      "main_neutral_loss": {
+        "name": "Main neutral loss"
+      },
+      "main_phase_error": {
+        "name": "Main phase error"
+      },
+      "site_fault": {
+        "name": "Site fault"
+      },
+      "bypass_abnormal": {
+        "name": "Bypass abnormal"
+      },
+      "bypass_phase_error": {
+        "name": "Bypass phase error"
+      },
+      "battery_open": {
+        "name": "Battery open"
+      },
+      "battery_over_charge": {
+        "name": "Battery over charge"
+      },
+      "overload_warning": {
+        "name": "Overload warning"
+      },
+      "fan_fault": {
+        "name": "Fan fault"
+      },
+      "maintenance_cover_open": {
+        "name": "Maintenance cover open"
+      },
+      "charger_fault": {
+        "name": "Charger fault"
+      }
+    },
+    "button": {
+      "battery_test_start": {
+        "name": "Start battery test"
+      },
+      "battery_test_cancel": {
+        "name": "Cancel battery test"
+      }
+    },
+    "number": {
+      "shutdown_delay": {
+        "name": "Shutdown delay"
+      },
+      "startup_delay": {
+        "name": "Startup delay"
+      }
+    }
+  }
+}

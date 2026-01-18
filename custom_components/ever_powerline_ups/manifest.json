@@ -1,0 +1,13 @@
+{
+  "domain": "ever_powerline_ups",
+  "name": "Ever Powerline UPS",
+  "codeowners": ["@corapoid"],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/corapoid/homeassistant-ever-powerline-ups",
+  "integration_type": "device",
+  "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/corapoid/homeassistant-ever-powerline-ups/issues",
+  "requirements": ["pymodbus>=3.6.0"],
+  "version": "1.0.0"
+}
