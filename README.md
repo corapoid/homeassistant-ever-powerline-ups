@@ -1,10 +1,6 @@
 # Ever Powerline UPS Integration for Home Assistant
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/corapoid/homeassistant-ever-powerline-ups/main/image.png" alt="Ever Power Systems Logo" width="300">
-</p>
-
-<p align="center">
   <a href="https://github.com/hacs/integration"><img src="https://img.shields.io/badge/HACS-Custom-41BDF5.svg" alt="HACS"></a>
   <a href="https://github.com/corapoid/homeassistant-ever-powerline-ups/releases"><img src="https://img.shields.io/github/release/corapoid/homeassistant-ever-powerline-ups.svg" alt="GitHub Release"></a>
   <a href="LICENSE"><img src="https://img.shields.io/github/license/corapoid/homeassistant-ever-powerline-ups.svg" alt="License"></a>
@@ -136,10 +132,6 @@ logger:
     custom_components.ever_powerline_ups: debug
     pymodbus: debug
 ```
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
