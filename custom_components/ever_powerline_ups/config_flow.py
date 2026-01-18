@@ -5,6 +5,7 @@ import logging
 from typing import Any
 
 import voluptuous as vol
+import pymodbus
 from pymodbus.client import AsyncModbusTcpClient
 from pymodbus.exceptions import ModbusException
 
@@ -14,6 +15,9 @@ from homeassistant.const import CONF_HOST, CONF_PORT
 from .const import DEFAULT_PORT, DEFAULT_SLAVE_ID, DOMAIN, REG_IDENTIFIERS
 
 _LOGGER = logging.getLogger(__name__)
+
+# Log pymodbus version for debugging
+_LOGGER.info("Using pymodbus version: %s", pymodbus.__version__)
 
 STEP_USER_DATA_SCHEMA = vol.Schema(
     {
@@ -32,17 +36,21 @@ class EverPowerlineUPSConfigFlow(ConfigFlow, domain=DOMAIN):
         self, host: str, port: int
     ) -> tuple[bool, str | None, str | None]:
         """Test connection to UPS and return (success, model, serial)."""
+        _LOGGER.debug("Testing connection to %s:%d", host, port)
         client = AsyncModbusTcpClient(host=host, port=port, timeout=10)
         
         try:
             connected = await client.connect()
+            _LOGGER.debug("Client connected: %s", connected)
             if not connected:
                 return False, None, None
 
             # Read identifiers to verify connection
+            _LOGGER.debug("Reading identifiers from register 0x%04X", REG_IDENTIFIERS)
             result = await client.read_holding_registers(
                 REG_IDENTIFIERS, 80, slave=DEFAULT_SLAVE_ID
             )
+            _LOGGER.debug("Read result: %s", result)
             
             if result.isError():
                 return False, None, None
