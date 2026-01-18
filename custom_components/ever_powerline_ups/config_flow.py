@@ -32,7 +32,7 @@ class EverPowerlineUPSConfigFlow(ConfigFlow, domain=DOMAIN):
         self, host: str, port: int
     ) -> tuple[bool, str | None, str | None]:
         """Test connection to UPS and return (success, model, serial)."""
-        client = AsyncModbusTcpClient(host=host, port=port, timeout=10, slave=DEFAULT_SLAVE_ID)
+        client = AsyncModbusTcpClient(host=host, port=port, timeout=10)
         
         try:
             connected = await client.connect()
@@ -41,7 +41,7 @@ class EverPowerlineUPSConfigFlow(ConfigFlow, domain=DOMAIN):
 
             # Read identifiers to verify connection
             result = await client.read_holding_registers(
-                REG_IDENTIFIERS, 80
+                REG_IDENTIFIERS, 80, slave=DEFAULT_SLAVE_ID
             )
             
             if result.isError():

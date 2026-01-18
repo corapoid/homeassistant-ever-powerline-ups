@@ -77,7 +77,6 @@ class EverUPSCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 host=self.host,
                 port=self.port,
                 timeout=10,
-                slave=DEFAULT_SLAVE_ID,
             )
             connected = await self._client.connect()
             if not connected:
@@ -110,7 +109,7 @@ class EverUPSCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         try:
             # Read identifiers (0x0000, 80 words)
             result = await client.read_holding_registers(
-                REG_IDENTIFIERS, 80
+                REG_IDENTIFIERS, 80, slave=DEFAULT_SLAVE_ID
             )
             if result.isError():
                 _LOGGER.warning("Failed to read device identifiers")
@@ -124,7 +123,7 @@ class EverUPSCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
             # Read rated data (0x00E0, 16 words)
             result = await client.read_holding_registers(
-                REG_RATED, 16
+                REG_RATED, 16, slave=DEFAULT_SLAVE_ID
             )
             if not result.isError():
                 regs = result.registers
@@ -158,7 +157,7 @@ class EverUPSCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
                 # Read warnings (0x0060, 6 words)
                 result = await client.read_holding_registers(
-                    REG_WARNINGS, 6
+                    REG_WARNINGS, 6, slave=DEFAULT_SLAVE_ID
                 )
                 if result.isError():
                     raise UpdateFailed("Failed to read warning registers")
@@ -170,7 +169,7 @@ class EverUPSCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
                 # Read status (0x0070, 10 words)
                 result = await client.read_holding_registers(
-                    REG_STATUS, 10
+                    REG_STATUS, 10, slave=DEFAULT_SLAVE_ID
                 )
                 if result.isError():
                     raise UpdateFailed("Failed to read status registers")
@@ -210,7 +209,7 @@ class EverUPSCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
                 # Read measurements (0x0080, 80 words)
                 result = await client.read_holding_registers(
-                    REG_MEASUREMENTS, 80
+                    REG_MEASUREMENTS, 80, slave=DEFAULT_SLAVE_ID
                 )
                 if result.isError():
                     raise UpdateFailed("Failed to read measurement registers")
@@ -271,12 +270,28 @@ class EverUPSCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 raise UpdateFailed(f"Error communicating with UPS: {err}") from err
 
     async def async_write_register(self, address: int, value: int) -> bool:
-        """Write a single register to the UPS."""
+        """Write a single register to UPS."""
         async with self._lock:
             try:
                 client = await self._ensure_connected()
                 result = await client.write_register(
-                    address, value
+                    address, value, slave=DEFAULT_SLAVE_ID
+                )
+                if result.isError():
+                    _LOGGER.error("Failed to write register 0x%04X: %s", address, result)
+                    return False
+                return True
+            except ModbusException as err:
+                _LOGGER.error("Modbus error writing register: %s", err)
+                return False
+
+    async def async_write_registers(self, address: int, values: list[int]) -> bool:
+        """Write multiple registers to UPS."""
+        async with self._lock:
+            try:
+                client = await self._ensure_connected()
+                result = await client.write_registers(
+                    address, values, slave=DEFAULT_SLAVE_ID
                 )
                 if result.isError():
                     _LOGGER.error("Failed to write register 0x%04X: %s", address, result)
@@ -310,7 +325,7 @@ class EverUPSCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             try:
                 client = await self._ensure_connected()
                 result = await client.read_holding_registers(
-                    address, count
+                    address, count, slave=DEFAULT_SLAVE_ID
                 )
                 if result.isError():
                     _LOGGER.error("Failed to read registers 0x%04X: %s", address, result)
