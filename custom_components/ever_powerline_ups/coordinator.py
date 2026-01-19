@@ -233,9 +233,10 @@ class EverUPSCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 data["apparent_power_l1"] = meas[31] * 100  # VA (0x009F - 0x0080 = 31)
                 data["apparent_power_l2"] = meas[32] * 100  # VA
                 data["apparent_power_l3"] = meas[33] * 100  # VA
-                data["load_l1"] = meas[34]  # % (0x00A2 - 0x0080 = 34)
-                data["load_l2"] = meas[35]  # %
-                data["load_l3"] = meas[36]  # %
+                # Load values - 0xFFFF (65535) means "not available" for unused phases
+                data["load_l1"] = meas[34] if meas[34] != 0xFFFF else None
+                data["load_l2"] = meas[35] if meas[35] != 0xFFFF else None
+                data["load_l3"] = meas[36] if meas[36] != 0xFFFF else None
                 data["runtime_minutes"] = meas[37]  # min (0x00A5 - 0x0080 = 37)
                 data["runtime_seconds"] = meas[38]  # sec
                 data["runtime_remaining"] = meas[37] + (meas[38] / 60.0)  # total min
@@ -257,9 +258,13 @@ class EverUPSCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                     + data["apparent_power_l2"]
                     + data["apparent_power_l3"]
                 )
-                data["load_total"] = max(
-                    data["load_l1"], data["load_l2"], data["load_l3"]
-                )
+                # Calculate load_total from valid phases only (ignore None values)
+                valid_loads = [
+                    v
+                    for v in [data["load_l1"], data["load_l2"], data["load_l3"]]
+                    if v is not None
+                ]
+                data["load_total"] = max(valid_loads) if valid_loads else None
 
                 return data
 
