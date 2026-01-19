@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.7] - 2026-01-19
+
+### Fixed
+- Handle 0xFFFF (65535) as "unavailable" for all per-phase measurements:
+  - Input/output voltage (L1, L2, L3)
+  - Output current (L1, L2, L3)
+  - Active power (L1, L2, L3)
+  - Apparent power (L1, L2, L3)
+  - Load percentage (L1, L2, L3)
+- Fixed totals calculation (active_power_total, apparent_power_total, load_total) to sum/max only valid phases
+- Fixed runtime_remaining calculation when runtime values are unavailable
+- Fixed battery_voltage calculation when positive/negative voltages are unavailable
+- Single-phase UPS now correctly shows L2/L3 values as unavailable instead of invalid numbers
+
 ## [1.0.6] - 2026-01-19
 
 ### Fixed

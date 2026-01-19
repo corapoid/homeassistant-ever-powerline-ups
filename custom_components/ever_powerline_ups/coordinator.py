@@ -216,55 +216,111 @@ class EverUPSCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                     raise UpdateFailed("Failed to read measurement registers")
 
                 meas = result.registers
-                data["temperature"] = meas[0] / 10.0  # C
-                data["input_frequency"] = meas[1] / 10.0  # Hz
-                data["input_voltage_l1"] = meas[4] / 10.0  # V
-                data["input_voltage_l2"] = meas[5] / 10.0  # V
-                data["input_voltage_l3"] = meas[6] / 10.0  # V
-                data["output_voltage_l1"] = meas[19] / 10.0  # V (0x0093 - 0x0080 = 19)
-                data["output_voltage_l2"] = meas[20] / 10.0  # V
-                data["output_voltage_l3"] = meas[21] / 10.0  # V
-                data["output_current_l1"] = meas[25] / 10.0  # A (0x0099 - 0x0080 = 25)
-                data["output_current_l2"] = meas[26] / 10.0  # A
-                data["output_current_l3"] = meas[27] / 10.0  # A
-                data["active_power_l1"] = meas[28] * 100  # W (0x009C - 0x0080 = 28)
-                data["active_power_l2"] = meas[29] * 100  # W
-                data["active_power_l3"] = meas[30] * 100  # W
-                data["apparent_power_l1"] = meas[31] * 100  # VA (0x009F - 0x0080 = 31)
-                data["apparent_power_l2"] = meas[32] * 100  # VA
-                data["apparent_power_l3"] = meas[33] * 100  # VA
-                # Load values - 0xFFFF (65535) means "not available" for unused phases
-                data["load_l1"] = meas[34] if meas[34] != 0xFFFF else None
-                data["load_l2"] = meas[35] if meas[35] != 0xFFFF else None
-                data["load_l3"] = meas[36] if meas[36] != 0xFFFF else None
-                data["runtime_minutes"] = meas[37]  # min (0x00A5 - 0x0080 = 37)
-                data["runtime_seconds"] = meas[38]  # sec
-                data["runtime_remaining"] = meas[37] + (meas[38] / 60.0)  # total min
-                data["battery_charge"] = meas[41]  # % (0x00A9 - 0x0080 = 41)
-                data["battery_voltage_pos"] = meas[42] / 10.0  # V (0x00AA)
-                data["battery_voltage_neg"] = meas[43] / 10.0  # V (0x00AB)
-                data["battery_voltage"] = (meas[42] + meas[43]) / 10.0  # V total
-                data["bypass_frequency"] = meas[45] / 10.0  # Hz (0x00AD - 0x0080 = 45)
-                data["bypass_voltage"] = meas[48] / 10.0  # V (0x00B0 - 0x0080 = 48)
 
-                # Calculate totals for single-phase display
-                data["active_power_total"] = (
-                    data["active_power_l1"]
-                    + data["active_power_l2"]
-                    + data["active_power_l3"]
+                # Helper function to handle 0xFFFF as unavailable
+                def val_or_none(value: int) -> int | None:
+                    """Return None if value is 0xFFFF (unavailable), otherwise return value."""
+                    return None if value == 0xFFFF else value
+
+                def scaled_or_none(value: int, scale: float) -> float | None:
+                    """Return scaled value or None if 0xFFFF."""
+                    return None if value == 0xFFFF else value / scale
+
+                def multiplied_or_none(value: int, multiplier: int) -> int | None:
+                    """Return multiplied value or None if 0xFFFF."""
+                    return None if value == 0xFFFF else value * multiplier
+
+                # Temperature and frequency (should always be available)
+                data["temperature"] = scaled_or_none(meas[0], 10.0)
+                data["input_frequency"] = scaled_or_none(meas[1], 10.0)
+
+                # Input voltage per phase (L2, L3 may be unavailable for single-phase)
+                data["input_voltage_l1"] = scaled_or_none(meas[4], 10.0)
+                data["input_voltage_l2"] = scaled_or_none(meas[5], 10.0)
+                data["input_voltage_l3"] = scaled_or_none(meas[6], 10.0)
+
+                # Output voltage per phase
+                data["output_voltage_l1"] = scaled_or_none(meas[19], 10.0)
+                data["output_voltage_l2"] = scaled_or_none(meas[20], 10.0)
+                data["output_voltage_l3"] = scaled_or_none(meas[21], 10.0)
+
+                # Output current per phase
+                data["output_current_l1"] = scaled_or_none(meas[25], 10.0)
+                data["output_current_l2"] = scaled_or_none(meas[26], 10.0)
+                data["output_current_l3"] = scaled_or_none(meas[27], 10.0)
+
+                # Active power per phase (unit: 100W)
+                data["active_power_l1"] = multiplied_or_none(meas[28], 100)
+                data["active_power_l2"] = multiplied_or_none(meas[29], 100)
+                data["active_power_l3"] = multiplied_or_none(meas[30], 100)
+
+                # Apparent power per phase (unit: 100VA)
+                data["apparent_power_l1"] = multiplied_or_none(meas[31], 100)
+                data["apparent_power_l2"] = multiplied_or_none(meas[32], 100)
+                data["apparent_power_l3"] = multiplied_or_none(meas[33], 100)
+
+                # Load percentage per phase
+                data["load_l1"] = val_or_none(meas[34])
+                data["load_l2"] = val_or_none(meas[35])
+                data["load_l3"] = val_or_none(meas[36])
+
+                # Runtime
+                runtime_min = val_or_none(meas[37])
+                runtime_sec = val_or_none(meas[38])
+                data["runtime_minutes"] = runtime_min
+                data["runtime_seconds"] = runtime_sec
+                if runtime_min is not None and runtime_sec is not None:
+                    data["runtime_remaining"] = runtime_min + (runtime_sec / 60.0)
+                else:
+                    data["runtime_remaining"] = None
+
+                # Battery
+                data["battery_charge"] = val_or_none(meas[41])
+                batt_pos = meas[42]
+                batt_neg = meas[43]
+                data["battery_voltage_pos"] = scaled_or_none(batt_pos, 10.0)
+                data["battery_voltage_neg"] = scaled_or_none(batt_neg, 10.0)
+                if batt_pos != 0xFFFF and batt_neg != 0xFFFF:
+                    data["battery_voltage"] = (batt_pos + batt_neg) / 10.0
+                else:
+                    data["battery_voltage"] = None
+
+                # Bypass
+                data["bypass_frequency"] = scaled_or_none(meas[45], 10.0)
+                data["bypass_voltage"] = scaled_or_none(meas[48], 10.0)
+
+                # Calculate totals from valid phases only
+                def sum_valid(values: list) -> int | None:
+                    """Sum non-None values, return None if all are None."""
+                    valid = [v for v in values if v is not None]
+                    return sum(valid) if valid else None
+
+                def max_valid(values: list) -> int | None:
+                    """Max of non-None values, return None if all are None."""
+                    valid = [v for v in values if v is not None]
+                    return max(valid) if valid else None
+
+                data["active_power_total"] = sum_valid(
+                    [
+                        data["active_power_l1"],
+                        data["active_power_l2"],
+                        data["active_power_l3"],
+                    ]
                 )
-                data["apparent_power_total"] = (
-                    data["apparent_power_l1"]
-                    + data["apparent_power_l2"]
-                    + data["apparent_power_l3"]
+                data["apparent_power_total"] = sum_valid(
+                    [
+                        data["apparent_power_l1"],
+                        data["apparent_power_l2"],
+                        data["apparent_power_l3"],
+                    ]
                 )
-                # Calculate load_total from valid phases only (ignore None values)
-                valid_loads = [
-                    v
-                    for v in [data["load_l1"], data["load_l2"], data["load_l3"]]
-                    if v is not None
-                ]
-                data["load_total"] = max(valid_loads) if valid_loads else None
+                data["load_total"] = max_valid(
+                    [
+                        data["load_l1"],
+                        data["load_l2"],
+                        data["load_l3"],
+                    ]
+                )
 
                 return data
 
