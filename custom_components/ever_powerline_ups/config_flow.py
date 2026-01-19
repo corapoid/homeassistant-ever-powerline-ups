@@ -1,4 +1,5 @@
 """Config flow for Ever Powerline UPS integration."""
+
 from __future__ import annotations
 
 import logging
@@ -38,7 +39,7 @@ class EverPowerlineUPSConfigFlow(ConfigFlow, domain=DOMAIN):
         """Test connection to UPS and return (success, model, serial)."""
         _LOGGER.debug("Testing connection to %s:%d", host, port)
         client = AsyncModbusTcpClient(host=host, port=port, timeout=10)
-        
+
         try:
             connected = await client.connect()
             _LOGGER.debug("Client connected: %s", connected)
@@ -48,16 +49,16 @@ class EverPowerlineUPSConfigFlow(ConfigFlow, domain=DOMAIN):
             # Read identifiers to verify connection
             _LOGGER.debug("Reading identifiers from register 0x%04X", REG_IDENTIFIERS)
             result = await client.read_holding_registers(
-                REG_IDENTIFIERS, 80, slave=DEFAULT_SLAVE_ID
+                REG_IDENTIFIERS, count=80, device_id=DEFAULT_SLAVE_ID
             )
             _LOGGER.debug("Read result: %s", result)
-            
+
             if result.isError():
                 return False, None, None
 
             # Decode model and serial
             regs = result.registers
-            
+
             def decode_string(registers: list[int], max_chars: int) -> str:
                 chars = []
                 for reg in registers:
@@ -71,7 +72,7 @@ class EverPowerlineUPSConfigFlow(ConfigFlow, domain=DOMAIN):
 
             model = decode_string(regs[16:48], 63)
             serial = decode_string(regs[56:64], 15)
-            
+
             return True, model, serial
 
         except ModbusException as err:
@@ -102,7 +103,7 @@ class EverPowerlineUPSConfigFlow(ConfigFlow, domain=DOMAIN):
                 self._abort_if_unique_id_configured()
 
                 title = f"Ever {model}" if model else f"Ever UPS ({host})"
-                
+
                 return self.async_create_entry(
                     title=title,
                     data=user_input,

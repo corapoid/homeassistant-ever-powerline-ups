@@ -1,4 +1,5 @@
 """DataUpdateCoordinator for Ever Powerline UPS."""
+
 from __future__ import annotations
 
 import asyncio
@@ -54,20 +55,20 @@ class EverUPSCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self.port = port
         self._client: AsyncModbusTcpClient | None = None
         self._lock = asyncio.Lock()
-        
+
         # Device info (fetched once)
         self.manufacturer: str = "EVER"
         self.model: str = ""
         self.firmware_version: str = ""
         self.serial_number: str = ""
-        
+
         # Rated data (fetched once)
         self.rated_apparent_power: int = 0
         self.rated_active_power: int = 0
         self.rated_battery_voltage: float = 0.0
         self.rated_output_voltage: float = 0.0
         self.rated_output_frequency: float = 0.0
-        
+
         self._device_info_fetched = False
 
     async def _ensure_connected(self) -> AsyncModbusTcpClient:
@@ -109,7 +110,7 @@ class EverUPSCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         try:
             # Read identifiers (0x0000, 80 words)
             result = await client.read_holding_registers(
-                REG_IDENTIFIERS, 80, slave=DEFAULT_SLAVE_ID
+                REG_IDENTIFIERS, count=80, device_id=DEFAULT_SLAVE_ID
             )
             if result.isError():
                 _LOGGER.warning("Failed to read device identifiers")
@@ -123,7 +124,7 @@ class EverUPSCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
             # Read rated data (0x00E0, 16 words)
             result = await client.read_holding_registers(
-                REG_RATED, 16, slave=DEFAULT_SLAVE_ID
+                REG_RATED, count=16, device_id=DEFAULT_SLAVE_ID
             )
             if not result.isError():
                 regs = result.registers
@@ -149,7 +150,7 @@ class EverUPSCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         async with self._lock:
             try:
                 client = await self._ensure_connected()
-                
+
                 # Fetch device info once
                 await self._fetch_device_info(client)
 
@@ -157,11 +158,11 @@ class EverUPSCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
                 # Read warnings (0x0060, 6 words)
                 result = await client.read_holding_registers(
-                    REG_WARNINGS, 6, slave=DEFAULT_SLAVE_ID
+                    REG_WARNINGS, count=6, device_id=DEFAULT_SLAVE_ID
                 )
                 if result.isError():
                     raise UpdateFailed("Failed to read warning registers")
-                
+
                 warnings = result.registers
                 data["warnings_0"] = warnings[0]
                 data["warnings_1"] = warnings[1]
@@ -169,7 +170,7 @@ class EverUPSCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
                 # Read status (0x0070, 10 words)
                 result = await client.read_holding_registers(
-                    REG_STATUS, 10, slave=DEFAULT_SLAVE_ID
+                    REG_STATUS, count=10, device_id=DEFAULT_SLAVE_ID
                 )
                 if result.isError():
                     raise UpdateFailed("Failed to read status registers")
@@ -209,7 +210,7 @@ class EverUPSCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
                 # Read measurements (0x0080, 80 words)
                 result = await client.read_holding_registers(
-                    REG_MEASUREMENTS, 80, slave=DEFAULT_SLAVE_ID
+                    REG_MEASUREMENTS, count=80, device_id=DEFAULT_SLAVE_ID
                 )
                 if result.isError():
                     raise UpdateFailed("Failed to read measurement registers")
@@ -275,10 +276,12 @@ class EverUPSCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             try:
                 client = await self._ensure_connected()
                 result = await client.write_register(
-                    address, value, slave=DEFAULT_SLAVE_ID
+                    address, value, device_id=DEFAULT_SLAVE_ID
                 )
                 if result.isError():
-                    _LOGGER.error("Failed to write register 0x%04X: %s", address, result)
+                    _LOGGER.error(
+                        "Failed to write register 0x%04X: %s", address, result
+                    )
                     return False
                 return True
             except ModbusException as err:
@@ -291,32 +294,16 @@ class EverUPSCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             try:
                 client = await self._ensure_connected()
                 result = await client.write_registers(
-                    address, values, slave=DEFAULT_SLAVE_ID
-                )
-                if result.isError():
-                    _LOGGER.error("Failed to write register 0x%04X: %s", address, result)
-                    return False
-                return True
-            except ModbusException as err:
-                _LOGGER.error("Modbus error writing register: %s", err)
-                return False
-
-    async def async_write_registers(self, address: int, values: list[int]) -> bool:
-        """Write multiple registers to the UPS."""
-        async with self._lock:
-            try:
-                client = await self._ensure_connected()
-                result = await client.write_registers(
-                    address, values
+                    address, values, device_id=DEFAULT_SLAVE_ID
                 )
                 if result.isError():
                     _LOGGER.error(
-                        "Failed to write registers 0x%04X: %s", address, result
+                        "Failed to write register 0x%04X: %s", address, result
                     )
                     return False
                 return True
             except ModbusException as err:
-                _LOGGER.error("Modbus error writing registers: %s", err)
+                _LOGGER.error("Modbus error writing register: %s", err)
                 return False
 
     async def async_read_registers(self, address: int, count: int) -> list[int] | None:
@@ -325,10 +312,12 @@ class EverUPSCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             try:
                 client = await self._ensure_connected()
                 result = await client.read_holding_registers(
-                    address, count, slave=DEFAULT_SLAVE_ID
+                    address, count=count, device_id=DEFAULT_SLAVE_ID
                 )
                 if result.isError():
-                    _LOGGER.error("Failed to read registers 0x%04X: %s", address, result)
+                    _LOGGER.error(
+                        "Failed to read registers 0x%04X: %s", address, result
+                    )
                     return None
                 return result.registers
             except ModbusException as err:
